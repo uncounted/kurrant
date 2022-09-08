@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kurrant.kurrant.model.dao.ArticleMapper">
+    <select id="getArticle" parameterType="long" resultType="com.kurrant.kurrant.model.dto.ArticleResponseDto">
+        SELECT article_id,
+               (SELECT cms__board.name_ko FROM cms__board where cms__board.board_id = cms__article.board_id) as board_name,
+               created_datetime,
+               is_pinned,
+               view_count,
+               title,
+               content_html,
+               content_string
+        FROM cms__article WHERE article_id = #{articleId};
+    </select>
+
+    <select id="getAllArticle" resultType="com.kurrant.kurrant.model.dto.ArticleResponseListDto">
+        SELECT article_id,
+               board_id,
+               (SELECT cms__board.name_ko FROM cms__board where cms__board.board_id = cms__article.board_id) as name_ko,
+               created_datetime,
+               is_pinned,
+               view_count,
+               title
+        FROM cms__article WHERE board_id = #{boardId}
+        ORDER BY created_datetime DESC;
+    </select>
+
+    <select id="getAllArticleByBoardName" parameterType="String" resultType="com.kurrant.kurrant.model.dto.ArticleResponseListDto">
+        SELECT article_id,
+               board_id,
+               (SELECT cms__board.name_ko FROM cms__board where cms__board.board_id = cms__article.board_id) as name_ko,
+               created_datetime,
+               is_pinned,
+               view_count,
+               title
+        FROM cms__article
+        WHERE board_id IN (
+            SELECT board_id
+            FROM cms__board
+            WHERE name_ko LIKE CONCAT('%', #{keyword}, '%')
+            )
+        ORDER BY created_datetime DESC;
+    </select>
+
+    <select id="getAllArticleByTitle" parameterType="String" resultType="com.kurrant.kurrant.model.dto.ArticleResponseListDto">
+        SELECT article_id,
+               board_id,
+               (SELECT cms__board.name_ko FROM cms__board where cms__board.board_id = cms__article.board_id) as name_ko,
+               created_datetime,
+               is_pinned,
+               view_count,
+               title
+        FROM cms__article
+        WHERE title LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY created_datetime DESC;
+    </select>
+
+    <select id="getAllArticleByDate" parameterType="map" resultType="com.kurrant.kurrant.model.dto.ArticleResponseListDto">
+        SELECT article_id,
+               board_id,
+               (SELECT cms__board.name_ko FROM cms__board where cms__board.board_id = cms__article.board_id) as name_ko,
+               created_datetime,
+               is_pinned,
+               view_count,
+               title
+        FROM cms__article
+        WHERE created_datetime BETWEEN #{startDate} AND #{endDate}
+        ORDER BY created_datetime DESC;
+    </select>
+
+    <insert id="createArticle" parameterType="map"
+            keyProperty="articleId" keyColumn="article_id" useGeneratedKeys="true">
+        INSERT INTO cms__article (board_id, title, content_html, content_string)
+        VALUES ( #{boardId}, #{title}, #{contentHtml}, #{contentString} );
+    </insert>
+
+    <update id="updateArticleViewCount" parameterType="long">
+        UPDATE cms__article
+        SET view_count = view_count + 1
+        WHERE article_id = #{articleId};
+    </update>
+
+    <delete id="deleteArticle" parameterType="long">
+        DELETE FROM cms__article
+        WHERE article_id = #{articleId};
+    </delete>
+</mapper>

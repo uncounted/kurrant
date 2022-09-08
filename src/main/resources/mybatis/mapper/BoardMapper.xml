@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kurrant.kurrant.model.dao.BoardMapper">
+    <insert id="createBoard" parameterType="map"
+            keyProperty="boardId" keyColumn="board_id" useGeneratedKeys="true">
+        INSERT INTO cms__board (name_ko) values ( #{nameKo} );
+    </insert>
+    <select id="getAllBoard" resultType="com.kurrant.kurrant.model.dto.BoardResponseDto">
+        SELECT * FROM cms__board;
+    </select>
+    <select id="getBoard" parameterType="long" resultType="com.kurrant.kurrant.model.dto.BoardResponseDto">
+        SELECT * FROM cms__board where board_id = #{boardId};
+    </select>
+</mapper>
